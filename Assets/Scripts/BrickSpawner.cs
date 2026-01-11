@@ -17,6 +17,8 @@ public class BrickSpawner : MonoBehaviour
     [Header("Positioning")]
     [SerializeField] private Vector2 startPosition = new Vector2(-4.5f, 3.5f);
 
+    [SerializeField] private Color[] rowColors;
+
     private void Start()
     {
         SpawnBricks();
@@ -33,7 +35,21 @@ public class BrickSpawner : MonoBehaviour
                     startPosition.y - row * (brickHeight + spacing)
                 );
 
-                Instantiate(brickPrefab, spawnPosition, Quaternion.identity, transform);
+                GameObject brickObj = Instantiate(
+                    brickPrefab,
+                    spawnPosition,
+                    Quaternion.identity,
+                    transform
+                );
+
+                Brick brick = brickObj.GetComponent<Brick>();
+
+                if (brick != null && row < rowColors.Length)
+                {
+                    brick.SetColor(rowColors[row]);
+                }
+
+                GameManager.Instance.RegisterBrick();
             }
         }
     }

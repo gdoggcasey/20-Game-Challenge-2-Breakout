@@ -5,10 +5,17 @@ using UnityEngine;
 public class BallMovement : MonoBehaviour
 {
     [SerializeField] private float launchSpeed = 4f;
+    [SerializeField] private float baseSpeed = 4f;
+    [SerializeField] private float speedIncreasePerBrick = 0.2f;
+    [SerializeField] private float maxSpeed = 12f;
+
+    private float currentSpeed;
+
     [SerializeField] private Transform paddle;
 
     [SerializeField] private float bounceAngleFactor = 2f;
     [SerializeField] private float maxBounceAngle = 60f;
+
 
     private Rigidbody2D rb;
     private bool hasLaunched = false;
@@ -21,6 +28,7 @@ public class BallMovement : MonoBehaviour
     private void Start()
     {
         ResetBall();
+        currentSpeed = baseSpeed;
     }
 
     private void Update()
@@ -36,6 +44,14 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Paddle"))
         {
             HandlePaddleBounce(collision);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("DeathZone"))
+        {
+            GameManager.Instance.LoseLife();
         }
     }
 
@@ -71,11 +87,18 @@ public class BallMovement : MonoBehaviour
         rb.velocity = launchDirection * launchSpeed;
     }
 
-    private void ResetBall()
+    public void ResetBall()
     {
-        hasLaunched = false;
+        currentSpeed = baseSpeed;
         rb.velocity = Vector2.zero;
-
+        hasLaunched = false;
+        
         transform.position = paddle.position + Vector3.up * 0.5f;
+    }
+
+    public void IncreaseSpeed()
+    {
+        currentSpeed = Mathf.Min(currentSpeed + speedIncreasePerBrick, maxSpeed);
+        rb.velocity = rb.velocity.normalized * currentSpeed;
     }
 }
