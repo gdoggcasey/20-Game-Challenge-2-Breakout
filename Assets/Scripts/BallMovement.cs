@@ -7,6 +7,9 @@ public class BallMovement : MonoBehaviour
     [SerializeField] private float launchSpeed = 4f;
     [SerializeField] private Transform paddle;
 
+    [SerializeField] private float bounceAngleFactor = 2f;
+    [SerializeField] private float maxBounceAngle = 60f;
+
     private Rigidbody2D rb;
     private bool hasLaunched = false;
 
@@ -26,6 +29,34 @@ public class BallMovement : MonoBehaviour
         {
             LaunchBall();
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Paddle"))
+        {
+            HandlePaddleBounce(collision);
+        }
+    }
+
+    private void HandlePaddleBounce(Collision2D collision)
+    {
+        Transform paddle = collision.transform;
+
+        float paddleWidth = paddle.GetComponent<BoxCollider2D>().bounds.size.x;
+
+        float hitPoint = transform.position.x - paddle.position.x;
+        float normalizedHitPoint = hitPoint / (paddleWidth / 2f);
+
+        float bounceAngle = normalizedHitPoint * maxBounceAngle;
+        float bounceAngleRad = bounceAngle * Mathf.Deg2Rad;
+
+        Vector2 direction = new Vector2(
+            Mathf.Sin(bounceAngleRad),
+            Mathf.Cos(bounceAngleRad)
+        );
+
+        rb.velocity = direction.normalized * rb.velocity.magnitude;
     }
 
     private void LaunchBall()
