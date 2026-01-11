@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEditor;
 using UnityEngine.SceneManagement;
+using UnityEditor.ShaderGraph.Internal;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,6 +17,11 @@ public class GameManager : MonoBehaviour
     [Header("Score")]
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private int pointsPerBrick = 10;
+    [SerializeField] private float maxScoreMultiplier = 5f;
+
+    [Header("High Score")]
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    private int highScore = 0;
 
     [Header("Bricks")]
     private int remainingBricks;
@@ -43,9 +49,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        remainingBricks = 0;
         currentLives = startingLives;
+
+        highScore = PlayerPrefs.GetInt("HighScore", 0);
         UpdateLivesUI();
         UpdateScoreUI();
+        UpdateHighScore();
     }
 
     public void RegisterBrick()
@@ -63,9 +73,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void UpdateHighScore()
+    {
+        highScoreText.text = $"High Score: {highScore}";
+    }
+
+    private void CheckForHighScore()
+    {
+        if (score > highScore)
+        {
+            highScore = score;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+
+            UpdateHighScore();
+        }
+    }
+
     public void AddScore()
     {
-        score += pointsPerBrick;
+        float speedMultiplier = ball.CurrentSpeed / ball.BaseSpeed;
+
+        speedMultiplier = Mathf.Clamp(speedMultiplier, 1f, maxScoreMultiplier);
+        int pointsToAdd = Mathf.RoundToInt(pointsPerBrick * speedMultiplier);
+
+        score += pointsToAdd;
         UpdateScoreUI();
 
         ball.IncreaseSpeed();
@@ -98,6 +130,7 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
+        CheckForHighScore();
         Time.timeScale = 0f;
         gameOverPanel.SetActive(true);
         Debug.Log("Game Over");
@@ -105,6 +138,7 @@ public class GameManager : MonoBehaviour
 
     private void WinGame()
     {
+        CheckForHighScore();
         Time.timeScale = 0f;
         winPanel.SetActive(true);
         Debug.Log("YOU WIN!");

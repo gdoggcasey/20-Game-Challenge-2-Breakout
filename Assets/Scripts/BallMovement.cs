@@ -7,14 +7,20 @@ public class BallMovement : MonoBehaviour
     [SerializeField] private float launchSpeed = 4f;
     [SerializeField] private float baseSpeed = 4f;
     [SerializeField] private float speedIncreasePerBrick = 0.2f;
-    [SerializeField] private float maxSpeed = 12f;
+    [SerializeField] private float maxSpeed = 20f;
 
     private float currentSpeed;
 
     [SerializeField] private Transform paddle;
+    [SerializeField] private Vector2 paddleOffset = new Vector2(0f, 0.1f);
 
     [SerializeField] private float bounceAngleFactor = 2f;
     [SerializeField] private float maxBounceAngle = 60f;
+
+    [SerializeField] private float minYVelocity = 1.5f;
+
+    public float CurrentSpeed => rb.velocity.magnitude;
+    public float BaseSpeed => baseSpeed;
 
 
     private Rigidbody2D rb;
@@ -33,10 +39,20 @@ public class BallMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!hasLaunched && Input.GetKeyDown(KeyCode.Space))
+        if (!hasLaunched)
         {
-            LaunchBall();
+            FollowPaddle();
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                LaunchBall();
+            }
         }
+    }
+
+    private void FollowPaddle()
+    {
+        transform.position = (Vector2)paddle.position + paddleOffset;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -45,6 +61,8 @@ public class BallMovement : MonoBehaviour
         {
             HandlePaddleBounce(collision);
         }
+
+        FixShallowAngle();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -101,4 +119,18 @@ public class BallMovement : MonoBehaviour
         currentSpeed = Mathf.Min(currentSpeed + speedIncreasePerBrick, maxSpeed);
         rb.velocity = rb.velocity.normalized * currentSpeed;
     }
+
+    private void FixShallowAngle()
+    {
+        Vector2 v = rb.velocity;
+
+        if (Mathf.Abs(v.y) < minYVelocity)
+        {
+            float sign = Mathf.Sign(v.y);
+            v.y = sign == 0 ? minYVelocity : sign * minYVelocity;
+            v = v.normalized * currentSpeed;
+            rb.velocity = v;
+        }
+    }
+
 }
