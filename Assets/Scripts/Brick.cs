@@ -28,19 +28,6 @@ public class Brick : MonoBehaviour
 
     private void BreakBrick()
     {
-        // Spawn particles
-        if (brickHitParticlesPrefab != null)
-        {
-            GameObject particles = Instantiate(brickHitParticlesPrefab, transform.position, Quaternion.identity);
-            Debug.Log("Spawning particles");
-
-            // Change particle color to match brick
-            var main = particles.GetComponent<ParticleSystem>().main;
-            main.startColor = brickColor;
-
-            Destroy(particles, 1f); // clean up after 1 second
-        }
-
         // Play sound
         AudioManager.Instance.PlaySound(AudioManager.Instance.brickHit);
 
