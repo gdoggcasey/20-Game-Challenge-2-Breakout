@@ -143,3 +143,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd26b1fe8e3575c43a9b14c2f4d04c05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  brickColor: {r: 0, g: 0, b: 0, a: 0}
+  brickHitParticlesPrefab: {fileID: 3785828746803570627, guid: 65cd92de10298af489b8fb593a7ff24f, type: 3}

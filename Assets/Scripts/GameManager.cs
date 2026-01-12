@@ -118,6 +118,8 @@ public class GameManager : MonoBehaviour
         currentLives--;
         UpdateLivesUI();
 
+        AudioManager.Instance.PlaySound(AudioManager.Instance.lifeLost);
+
         if (currentLives <= 0)
         {
             EndGame();
@@ -138,6 +140,7 @@ public class GameManager : MonoBehaviour
 
     private void WinGame()
     {
+        AudioManager.Instance.PlaySound(AudioManager.Instance.winSound);
         CheckForHighScore();
         Time.timeScale = 0f;
         winPanel.SetActive(true);

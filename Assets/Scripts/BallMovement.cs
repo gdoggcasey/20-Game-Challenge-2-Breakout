@@ -60,6 +60,12 @@ public class BallMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Paddle"))
         {
             HandlePaddleBounce(collision);
+            AudioManager.Instance.PlaySound(AudioManager.Instance.paddleHit);
+        }
+
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            AudioManager.Instance.PlaySound(AudioManager.Instance.wallHit);
         }
 
         FixShallowAngle();
